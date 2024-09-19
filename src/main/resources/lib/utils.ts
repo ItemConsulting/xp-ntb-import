@@ -1,4 +1,5 @@
 import { get as getOne } from "/lib/xp/content";
+import type { ContextParams } from "/lib/xp/context";
 
 // Returns the substring after the last instance of the separator
 export function substringAfter(str: string, separator = "/"): string {
@@ -24,4 +25,21 @@ export function getContentPathById(key: string): string {
   } else {
     return content._path;
   }
+}
+
+export function buildBaseContext (repoId?: string): ContextParams {
+  const baseContext: ContextParams = {
+    branch: "draft",
+    principals: ["role:system.admin"],
+    user: {
+      login: "su",
+      idProvider: "system",
+    }
+  };
+
+  if (repoId) {
+    baseContext.repository = repoId;
+  }
+
+  return baseContext;
 }

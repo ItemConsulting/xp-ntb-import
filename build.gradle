@@ -22,6 +22,7 @@ dependencies {
     include "com.enonic.xp:lib-i18n:${xpVersion}"
     include 'com.enonic.lib:lib-cron:1.1.2'
     include 'com.enonic.lib:lib-http-client:3.2.2'
+    include "com.enonic.xp:lib-repo:${xpVersion}"
 }
 
 repositories {

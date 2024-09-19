@@ -3,14 +3,12 @@ import { sanitize } from "/lib/xp/common";
 import { request } from "/lib/http-client";
 import { PressRelease, getPressReleases } from "./ntb";
 import { getContentPathById, notNullOrUndefined, substringAfter } from "./utils";
-import { getSiteConfigInCron } from "./portal";
 import type { NtbArticle } from "/site/content-types/ntb-article";
 import type { SiteConfig } from "/site/index";
 
 const CONTENT_CREATE_FAILED = null;
 
-export function importFromNtb(): void {
-  const params = getSiteConfigInCron<SiteConfig>();
+export function importFromNtb(params: SiteConfig): void {
   const parentPath = getContentPathById(params.parentId);
   const pressReleases = getPressReleases({
     publisher: params.publisher,
@@ -24,7 +22,7 @@ export function importFromNtb(): void {
     .map((pressRelease) => importPressRelease(pressRelease, parentPath))
     .filter(notNullOrUndefined);
 
-  log.info(`Created ${createdContentIds.length} articles by importing form NTB`);
+  log.info(`Created ${createdContentIds.length} articles by importing from NTB`);
 
   const publishResults = publish({
     keys: createdContentIds,
@@ -141,7 +139,7 @@ function pressReleaseToNtbArticle(pressRelease: PressRelease): NtbArticle {
     published: pressRelease.published,
     url: `https://kommunikasjon.ntb.no${pressRelease.url}`,
     publisherId: pressRelease.publisher.id,
-    channelId: pressRelease.channels[0].id,
+    channelId: pressRelease.channels.length > 0 ? pressRelease.channels[0].id : undefined,
     type: pressRelease.type,
     language: pressRelease.language,
   };

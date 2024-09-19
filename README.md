@@ -21,7 +21,7 @@ When you add the NTB Import application to your *site*, you have to configure th
 
  1. Folder where articles are stored
  2. Publisher id (8 digit number from NTB)
- 3. Channels (8 digit number from NTB)
+ 3. Channels (8 digit number from NTB) - optional
 
 ### Manual Article Import
 
@@ -48,18 +48,18 @@ export interface NtbArticle {
   leadtext: string;
   body: string;
   imageId?: string;
-  images?: Array<string>;
+  images?: Array<string> | string;
   links?: Array<{
     url: string;
     description: string;
   }>;
-  keywords?: Array<string>;
+  keywords?: Array<string> | string;
   ntbId: number;
   published: string;
   url: string;
   type: string;
   publisherId: number;
-  channelId: number;
+  channelId?: number;
   language: string;
 }
 ```
