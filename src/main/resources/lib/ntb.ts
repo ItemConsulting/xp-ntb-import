@@ -2,14 +2,14 @@ import { request, HttpResponse } from "/lib/http-client";
 
 const URL_NTB = "https://kommunikasjon.ntb.no/json/v2/releases";
 
-export function getPressReleases(params: GetPressReleaseParams): Array<PressRelease> {
+export function getNtbResponsePressReleases(params: GetPressReleaseParams): NtbResponse {
   const res: HttpResponse = request({
     url: URL_NTB,
     params: params as Record<string, string>,
   });
 
   if (res.status === 200) {
-    return (JSON.parse(res.body ?? "") as NtbResponse).releases;
+    return (JSON.parse(res.body ?? "") as NtbResponse);
   } else {
     log.error("Failed to get press releases from NTB over HTTP");
     throw {
@@ -20,7 +20,7 @@ export function getPressReleases(params: GetPressReleaseParams): Array<PressRele
   }
 }
 
-interface GetPressReleaseParams {
+export interface GetPressReleaseParams {
   publisher?: string;
   page?: number;
   size?: number;

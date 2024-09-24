@@ -27,5 +27,11 @@
     <input name="disableImport" type="CheckBox">
       <label i18n="site.disableImport">Disable Import</label>
     </input>
+
+    <input name="fetchAllPressReleases" type="CheckBox">
+      <label i18n="site.fetchAllPressReleases">Fetch all articles ever created in this NTB-instance</label>
+      <occurrences minimum="0" maximum="1"/>
+      <help-text i18n="site.fetchAllPressReleases.helptext">Toggle to fetch all articles. Will fetch all articles when a job is run - every hour if you have not disabled import with the option above, so make sure you actually need it before checking it.</help-text>
+    </input>
   </form>
 </site>

@@ -1,20 +1,27 @@
 import { create, createMedia, modify, publish, query, exists, type Content } from "/lib/xp/content";
 import { sanitize } from "/lib/xp/common";
 import { request } from "/lib/http-client";
-import { PressRelease, getPressReleases } from "./ntb";
+import { PressRelease, getNtbResponsePressReleases, GetPressReleaseParams } from "./ntb";
 import { getContentPathById, notNullOrUndefined, substringAfter } from "./utils";
 import type { NtbArticle } from "/site/content-types/ntb-article";
 import type { SiteConfig } from "/site/index";
 
 const CONTENT_CREATE_FAILED = null;
 
-export function importFromNtb(params: SiteConfig): void {
+export function importFromNtb(params: SiteConfig, page?: number): void {
   const parentPath = getContentPathById(params.parentId);
-  const pressReleases = getPressReleases({
+
+  let pressReleaseParams: GetPressReleaseParams = {
     publisher: params.publisher,
     channels: params.channels,
-    //size: 5,
-  });
+  };
+
+  if (page) {
+    pressReleaseParams.page = page;
+  }
+
+  const ntbResponsePressReleases = getNtbResponsePressReleases(pressReleaseParams);
+  const pressReleases = ntbResponsePressReleases.releases;
 
   const createdContentIds = pressReleases
     .filter(notAlreadyImported)
@@ -37,6 +44,11 @@ export function importFromNtb(params: SiteConfig): void {
 
   if (publishResults.failedContents.length > 0) {
     log.error(`Failed to publish ${publishResults.failedContents.length} as part of import from NTB`);
+  }
+
+  if (params?.fetchAllPressReleases && ntbResponsePressReleases.nextPage) {
+    log.info(`There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`);
+    importFromNtb(params, ntbResponsePressReleases.nextPage);
   }
 }
 
