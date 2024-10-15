@@ -32,7 +32,7 @@ You can manually run an import by running the  `ntb-import` service, which can b
 
 ### Automatic Article Import
 
-The application has a [cron job](./src/main/resources/main.ts) that runs an import job **every hour on the hour**, which fetch. If there 
+The application has a [cron job](./src/main/resources/main.ts) that runs an import job **every hour on the hour**. If there 
 are new articles on your NTB Channel, they will be imported into XP as 
 [NTB Article](./src/main/resources/site/content-types/ntb-article/ntb-article.xml) content. The  **su** user is set as 
 the owner of the new content. If you have more than 20 new articles (NTB delivers only 20 articles per request), you need to use the 
