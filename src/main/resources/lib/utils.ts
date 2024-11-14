@@ -27,14 +27,14 @@ export function getContentPathById(key: string): string {
   }
 }
 
-export function buildBaseContext (repoId?: string): ContextParams {
+export function buildBaseContext(repoId?: string): ContextParams {
   const baseContext: ContextParams = {
     branch: "draft",
     principals: ["role:system.admin"],
     user: {
       login: "su",
       idProvider: "system",
-    }
+    },
   };
 
   if (repoId) {

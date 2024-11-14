@@ -1,7 +1,7 @@
 import { create, createMedia, modify, publish, query, exists, type Content } from "/lib/xp/content";
 import { sanitize } from "/lib/xp/common";
 import { request } from "/lib/http-client";
-import { PressRelease, getNtbResponsePressReleases, GetPressReleaseParams } from "./ntb";
+import { getNtbResponsePressReleases, type PressRelease, type GetPressReleaseParams } from "./ntb";
 import { getContentPathById, notNullOrUndefined, substringAfter } from "./utils";
 import type { NtbArticle } from "/site/content-types/ntb-article";
 import type { SiteConfig } from "/site/index";
@@ -11,7 +11,7 @@ const CONTENT_CREATE_FAILED = null;
 export function importFromNtb(params: SiteConfig, page?: number): void {
   const parentPath = getContentPathById(params.parentId);
 
-  let pressReleaseParams: GetPressReleaseParams = {
+  const pressReleaseParams: GetPressReleaseParams = {
     publisher: params.publisher,
     channels: params.channels,
   };
@@ -47,7 +47,9 @@ export function importFromNtb(params: SiteConfig, page?: number): void {
   }
 
   if (params?.fetchAllPressReleases && ntbResponsePressReleases.nextPage) {
-    log.info(`There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`);
+    log.info(
+      `There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`
+    );
     importFromNtb(params, ntbResponsePressReleases.nextPage);
   }
 }

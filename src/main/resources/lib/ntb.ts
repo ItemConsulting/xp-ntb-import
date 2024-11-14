@@ -9,7 +9,7 @@ export function getNtbResponsePressReleases(params: GetPressReleaseParams): NtbR
   });
 
   if (res.status === 200) {
-    return (JSON.parse(res.body ?? "") as NtbResponse);
+    return JSON.parse(res.body ?? "") as NtbResponse;
   } else {
     log.error("Failed to get press releases from NTB over HTTP");
     throw {
