@@ -23,24 +23,23 @@ function runInDraftRepoContext<T>(callback: () => T, repositoryId = "com.enonic.
 }
 
 export function getAllSiteConfigsInCron(): RepoSiteAppConfig[] {
-  return listRepositories()
-    .reduce((acc: RepoSiteAppConfig[], repository) => {
-      if (repository.branches.indexOf("draft") >= 0) {
-        const sites = runInDraftRepoContext(getSites, repository.id);
+  return listRepositories().reduce((acc: RepoSiteAppConfig[], repository) => {
+    if (repository.branches.indexOf("draft") >= 0) {
+      const sites = runInDraftRepoContext(getSites, repository.id);
 
-        sites.forEach((site) => {
-          const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
-            (cfg) => cfg.applicationKey === app.name
-          )[0];
-          acc.push({
-            repoId: repository.id,
-            siteName: site._name,
-            appConfig: ntbAppGeneralSiteConfig.config as SiteConfig,
-          });
+      sites.forEach((site) => {
+        const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
+          (cfg) => cfg.applicationKey === app.name
+        )[0];
+        acc.push({
+          repoId: repository.id,
+          siteName: site._name,
+          appConfig: ntbAppGeneralSiteConfig.config as SiteConfig,
         });
-      }
-      return acc;
-    }, []);
+      });
+    }
+    return acc;
+  }, []);
 }
 
 export function getSiteConfigsFromNodes(nodes: EnonicEventDataNode[]): RepoSiteAppConfig[] {
