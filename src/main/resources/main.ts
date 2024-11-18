@@ -41,7 +41,7 @@ function toggleImport(siteConfig?: RepoSiteAppConfig[]) {
       schedule({
         name: scheduleJobName,
         cron: CRON_EVERY_HOUR,
-        callback: () => importFromNtb(siteWithConfig.appConfig),
+        callback: () => importFromNtb(siteWithConfig.appConfig, scheduleJobName),
         context: buildBaseContext(siteWithConfig.repoId),
       });
     }

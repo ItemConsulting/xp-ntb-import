@@ -8,7 +8,7 @@ import type { SiteConfig } from "/site/index";
 
 const CONTENT_CREATE_FAILED = null;
 
-export function importFromNtb(params: SiteConfig, page?: number): void {
+export function importFromNtb(params: SiteConfig, jobName: string, page?: number): void {
   const parentPath = getContentPathById(params.parentId);
 
   const pressReleaseParams: GetPressReleaseParams = {
@@ -29,7 +29,7 @@ export function importFromNtb(params: SiteConfig, page?: number): void {
     .map((pressRelease) => importPressRelease(pressRelease, parentPath))
     .filter(notNullOrUndefined);
 
-  log.info(`Created ${createdContentIds.length} articles by importing from NTB`);
+  log.info(`${jobName}: Created ${createdContentIds.length} articles by importing from NTB`);
 
   const publishResults = publish({
     keys: createdContentIds,
@@ -39,18 +39,18 @@ export function importFromNtb(params: SiteConfig, page?: number): void {
   });
 
   if (publishResults.pushedContents.length > 0) {
-    log.info(`Published ${publishResults.pushedContents.length} contents as part of import from NTB`);
+    log.info(`${jobName}: Published ${publishResults.pushedContents.length} contents as part of import from NTB`);
   }
 
   if (publishResults.failedContents.length > 0) {
-    log.error(`Failed to publish ${publishResults.failedContents.length} as part of import from NTB`);
+    log.error(`${jobName}: Failed to publish ${publishResults.failedContents.length} as part of import from NTB`);
   }
 
   if (params?.fetchAllPressReleases && ntbResponsePressReleases.nextPage) {
     log.info(
-      `There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`
+      `${jobName}: There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`
     );
-    importFromNtb(params, ntbResponsePressReleases.nextPage);
+    importFromNtb(params, jobName, ntbResponsePressReleases.nextPage);
   }
 }
 

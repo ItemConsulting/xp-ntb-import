@@ -18,71 +18,49 @@ function getSites<Config extends object>(): Site<Config>[] {
   }).hits;
 }
 
-const runInDraftRepoContext = (callback: () => void, repositoryId: string, params: []) => {
-  if (!repositoryId) {
-    repositoryId = "com.enonic.cms.default"; // Best guess... This shouldn't happen!
-  }
-
-  return run(buildBaseContext(repositoryId), () => callback(...params));
-};
+function runInDraftRepoContext<T>(callback: () => T, repositoryId = "com.enonic.cms.default"): T {
+  return run(buildBaseContext(repositoryId), callback);
+}
 
 export function getAllSiteConfigsInCron(): RepoSiteAppConfig[] {
-  const siteConfigs: RepoSiteAppConfig[] = [];
-  const filteredRepolist = listRepositories()
-    .filter((repository) => repository.branches.indexOf("draft") >= 0)
-    .map((repository) => repository.id);
+  return listRepositories()
+    .reduce((acc: RepoSiteAppConfig[], repository) => {
+      if (repository.branches.indexOf("draft") >= 0) {
+        const sites = runInDraftRepoContext(getSites, repository.id);
 
-  filteredRepolist.forEach((repositoryId) => {
-    runInDraftRepoContext(
-      () => {
-        const sites = getSites();
         sites.forEach((site) => {
           const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
             (cfg) => cfg.applicationKey === app.name
           )[0];
-          siteConfigs.push({
-            repoId: repositoryId,
+          acc.push({
+            repoId: repository.id,
             siteName: site._name,
             appConfig: ntbAppGeneralSiteConfig.config as SiteConfig,
           });
         });
-      },
-      repositoryId,
-      []
-    );
-  });
-
-  return siteConfigs;
+      }
+      return acc;
+    }, []);
 }
 
 export function getSiteConfigsFromNodes(nodes: EnonicEventDataNode[]): RepoSiteAppConfig[] {
-  const siteConfigs: RepoSiteAppConfig[] = [];
-
-  nodes.forEach((node) => {
+  return nodes.reduce((acc: RepoSiteAppConfig[], node) => {
     const repositoryId = node.repo;
 
-    runInDraftRepoContext(
-      () => {
-        const site = getOne<Site<SiteConfig>>({ key: node.id });
+    const site = runInDraftRepoContext(() => getOne<Site<SiteConfig>>({ key: node.id }), repositoryId);
+    if (site?._name) {
+      const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
+        (cfg) => cfg.applicationKey === app.name
+      )[0];
 
-        if (site?._name) {
-          const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
-            (cfg) => cfg.applicationKey === app.name
-          )[0];
-
-          if (ntbAppGeneralSiteConfig?.config) {
-            siteConfigs.push({
-              repoId: repositoryId,
-              siteName: site._name,
-              appConfig: ntbAppGeneralSiteConfig.config,
-            });
-          }
-        }
-      },
-      repositoryId,
-      []
-    );
-  });
-
-  return siteConfigs;
+      if (ntbAppGeneralSiteConfig?.config) {
+        acc.push({
+          repoId: repositoryId,
+          siteName: site._name,
+          appConfig: ntbAppGeneralSiteConfig.config,
+        });
+      }
+    }
+    return acc;
+  }, []);
 }

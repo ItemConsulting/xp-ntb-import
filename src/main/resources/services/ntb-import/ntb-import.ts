@@ -11,12 +11,13 @@ export function get(): Response {
 
   try {
     siteConfigsInCron.forEach((siteWithConfig) => {
+      const jobName = `import-from-ntb_${siteWithConfig.siteName}`;
       schedule({
-        name: `import-from-ntb_${siteWithConfig.siteName}`,
+        name: jobName,
         delay: 1,
         fixedDelay: 1,
         times: 1,
-        callback: () => importFromNtb(siteWithConfig.appConfig),
+        callback: () => importFromNtb(siteWithConfig.appConfig, jobName),
         context: buildBaseContext(siteWithConfig.repoId),
       });
     });
