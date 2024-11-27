@@ -17,11 +17,13 @@ Install this application from Enonic Market.
 
 ### Configuration
 
-When you add the NTB Import application to your *site*, you have to configure three fields.
+When you add the NTB Import application to your *site*, you have to configure two fields, and three fields are optional.
 
- 1. Folder where articles are stored
- 2. Publisher id (8 digit number from NTB)
- 3. Channels (8 digit number from NTB)
+1. Folder where articles are stored
+2. Publisher id (8 digit number from NTB)
+3. Channels (optional 8 digit number from NTB)
+4. Disable import (optional to disable the cron job that syncs every hour, but if you call the service it will sync even if this is checked)
+5. Fetch all articles ever created in this NTB-instance (optional to fetch all articles when a job is run - every hour if you have not disabled import with the option above)
 
 ### Manual Article Import
 
@@ -33,7 +35,8 @@ You can manually run an import by running the  `ntb-import` service, which can b
 The application has a [cron job](./src/main/resources/main.ts) that runs an import job **every hour on the hour**. If there 
 are new articles on your NTB Channel, they will be imported into XP as 
 [NTB Article](./src/main/resources/site/content-types/ntb-article/ntb-article.xml) content. The  **su** user is set as 
-the owner of the new content.
+the owner of the new content. If you have more than 20 new articles (NTB delivers only 20 articles per request), you need to use the 
+"Fetch all articles ever created in this NTB-instance" option in the config to get all the articles.
 
 ### Displaying NTB Article
 
@@ -48,18 +51,18 @@ export interface NtbArticle {
   leadtext: string;
   body: string;
   imageId?: string;
-  images?: Array<string>;
+  images?: Array<string> | string;
   links?: Array<{
     url: string;
     description: string;
   }>;
-  keywords?: Array<string>;
+  keywords?: Array<string> | string;
   ntbId: number;
   published: string;
   url: string;
   type: string;
   publisherId: number;
-  channelId: number;
+  channelId?: number;
   language: string;
 }
 ```

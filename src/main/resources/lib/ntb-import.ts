@@ -1,22 +1,27 @@
 import { create, createMedia, modify, publish, query, exists, type Content } from "/lib/xp/content";
 import { sanitize } from "/lib/xp/common";
 import { request } from "/lib/http-client";
-import { PressRelease, getPressReleases } from "./ntb";
+import { getNtbResponsePressReleases, type PressRelease, type GetPressReleaseParams } from "./ntb";
 import { getContentPathById, notNullOrUndefined, substringAfter } from "./utils";
-import { getSiteConfigInCron } from "./portal";
 import type { NtbArticle } from "/site/content-types/ntb-article";
 import type { SiteConfig } from "/site/index";
 
 const CONTENT_CREATE_FAILED = null;
 
-export function importFromNtb(): void {
-  const params = getSiteConfigInCron<SiteConfig>();
+export function importFromNtb(params: SiteConfig, jobName: string, page?: number): void {
   const parentPath = getContentPathById(params.parentId);
-  const pressReleases = getPressReleases({
+
+  const pressReleaseParams: GetPressReleaseParams = {
     publisher: params.publisher,
     channels: params.channels,
-    //size: 5,
-  });
+  };
+
+  if (page) {
+    pressReleaseParams.page = page;
+  }
+
+  const ntbResponsePressReleases = getNtbResponsePressReleases(pressReleaseParams);
+  const pressReleases = ntbResponsePressReleases.releases;
 
   const createdContentIds = pressReleases
     .filter(notAlreadyImported)
@@ -24,7 +29,7 @@ export function importFromNtb(): void {
     .map((pressRelease) => importPressRelease(pressRelease, parentPath))
     .filter(notNullOrUndefined);
 
-  log.info(`Created ${createdContentIds.length} articles by importing form NTB`);
+  log.info(`${jobName}: Created ${createdContentIds.length} articles by importing from NTB`);
 
   const publishResults = publish({
     keys: createdContentIds,
@@ -34,11 +39,18 @@ export function importFromNtb(): void {
   });
 
   if (publishResults.pushedContents.length > 0) {
-    log.info(`Published ${publishResults.pushedContents.length} contents as part of import from NTB`);
+    log.info(`${jobName}: Published ${publishResults.pushedContents.length} contents as part of import from NTB`);
   }
 
   if (publishResults.failedContents.length > 0) {
-    log.error(`Failed to publish ${publishResults.failedContents.length} as part of import from NTB`);
+    log.error(`${jobName}: Failed to publish ${publishResults.failedContents.length} as part of import from NTB`);
+  }
+
+  if (params?.fetchAllPressReleases && ntbResponsePressReleases.nextPage) {
+    log.info(
+      `${jobName}: There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`
+    );
+    importFromNtb(params, jobName, ntbResponsePressReleases.nextPage);
   }
 }
 
@@ -141,7 +153,7 @@ function pressReleaseToNtbArticle(pressRelease: PressRelease): NtbArticle {
     published: pressRelease.published,
     url: `https://kommunikasjon.ntb.no${pressRelease.url}`,
     publisherId: pressRelease.publisher.id,
-    channelId: pressRelease.channels[0].id,
+    channelId: pressRelease.channels.length > 0 ? pressRelease.channels[0].id : undefined,
     type: pressRelease.type,
     language: pressRelease.language,
   };

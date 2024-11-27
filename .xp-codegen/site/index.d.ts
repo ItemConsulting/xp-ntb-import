@@ -23,6 +23,11 @@ declare global {
        * Disable Import
        */
       disableImport: boolean;
+
+      /**
+       * Fetch all articles ever created in this NTB-instance
+       */
+      fetchAllPressReleases: boolean;
     }
   }
 }
