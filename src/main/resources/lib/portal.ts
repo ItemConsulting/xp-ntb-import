@@ -29,7 +29,7 @@ export function getAllSiteConfigsInCron(): RepoSiteAppConfig[] {
 
       sites.forEach((site) => {
         const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
-          (cfg) => cfg.applicationKey === app.name
+          (cfg) => cfg.applicationKey === app.name,
         )[0];
         acc.push({
           repoId: repository.id,
@@ -49,7 +49,7 @@ export function getSiteConfigsFromNodes(nodes: EnonicEventDataNode[]): RepoSiteA
     const site = runInDraftRepoContext(() => getOne<Site<SiteConfig>>({ key: node.id }), repositoryId);
     if (site?._name) {
       const ntbAppGeneralSiteConfig = forceArray(site?.data?.siteConfig).filter(
-        (cfg) => cfg.applicationKey === app.name
+        (cfg) => cfg.applicationKey === app.name,
       )[0];
 
       if (ntbAppGeneralSiteConfig?.config) {

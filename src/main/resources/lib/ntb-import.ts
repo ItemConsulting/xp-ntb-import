@@ -33,6 +33,8 @@ export function importFromNtb(params: SiteConfig, jobName: string, page?: number
 
   const publishResults = publish({
     keys: createdContentIds,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     sourceBranch: "draft",
     targetBranch: "master",
     includeDependencies: true,
@@ -48,7 +50,7 @@ export function importFromNtb(params: SiteConfig, jobName: string, page?: number
 
   if (params?.fetchAllPressReleases && ntbResponsePressReleases.nextPage) {
     log.info(
-      `${jobName}: There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`
+      `${jobName}: There exists more pages, getting the next press releases from page: ${ntbResponsePressReleases.nextPage}`,
     );
     importFromNtb(params, jobName, ntbResponsePressReleases.nextPage);
   }
@@ -110,7 +112,7 @@ interface MediaImage {
 function createImageContent(
   url: string,
   parentPath: string,
-  caption: string | null
+  caption: string | null,
 ): Content<MediaImage> | typeof CONTENT_CREATE_FAILED {
   const name = substringAfter(url);
   const imageResponse = request({ url });

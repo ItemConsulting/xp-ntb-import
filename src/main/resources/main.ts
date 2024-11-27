@@ -49,7 +49,7 @@ function toggleImport(siteConfig?: RepoSiteAppConfig[]) {
     log.info(
       disableImport
         ? `Unscheduled cron job "${scheduleJobName}"`
-        : `Create cron job for "${scheduleJobName}" that runs "${CRON_EVERY_HOUR}"`
+        : `Create cron job for "${scheduleJobName}" that runs "${CRON_EVERY_HOUR}"`,
     );
   });
 }

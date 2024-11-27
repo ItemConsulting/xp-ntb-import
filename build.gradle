@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'maven-publish'
     id "com.github.node-gradle.node" version '3.4.0'
-    id 'com.enonic.xp.app' version '3.1.0'
-    id 'no.item.xp.codegen' version '2.2.2'
+    id 'com.enonic.xp.app' version '3.5.2'
+    id 'no.item.xp.codegen' version '2.6.2'
 }
 
 app {
@@ -20,9 +20,9 @@ dependencies {
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.xp:lib-i18n:${xpVersion}"
+    include "com.enonic.xp:lib-repo:${xpVersion}"
     include 'com.enonic.lib:lib-cron:1.1.2'
     include 'com.enonic.lib:lib-http-client:3.2.2'
-    include "com.enonic.xp:lib-repo:${xpVersion}"
 }
 
 repositories {
