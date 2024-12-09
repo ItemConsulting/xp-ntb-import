@@ -88,3 +88,4 @@ npm-debug.log
 .enonic
 /src/main/resources/assets/css/theme/
 .idea
+.eslintcache

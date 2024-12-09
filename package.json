@@ -5,11 +5,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build:ser:ver": "webpack --config webpack.server.config.js --color",
+    "build:server": "webpack --config webpack.server.config.js --color",
     "build": "run-p -c build:*",
     "dist:server": "cross-env NODE_ENV=production webpack --config webpack.server.config.js --color",
     "dist": "run-p -c dist:*",
-    "lint": "eslint --fix 'src/**/*.ts'"
+    "lint": "eslint --cache --fix \"src/**/*.ts\"",
+    "release": "npm run build",
+    "versioning": "npx changeset version && npm i --package-lock-only && NEW_VERSION=$(node -p \"require('./package.json').version\") && sed -i \"s/version.*/version = ${NEW_VERSION}/\" gradle.properties"
   },
   "devDependencies": {
     "@enonic-types/lib-common": "^7.14.4",
