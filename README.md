@@ -2,10 +2,12 @@
 
 Enonic XP Application that imports articles from [NTB Kommunikasjon](https://kommunikasjon.ntb.no/) and creates `Content` in XP.
 
-| :information_source: You need to have a subscription from [NTB Kommunikasjon](https://kommunikasjon.ntb.no/bli-kunde) to use this library. |
-|------|
 
-[![](https://jitpack.io/v/no.item/xp-ntb-import.svg)](https://jitpack.io/#no.item/xp-ntb-import)
+> [!IMPORTANT]
+> You need to have a subscription from [NTB Kommunikasjon](https://kommunikasjon.ntb.no/bli-kunde) to use this library. 
+
+
+[![](https://repo.itemtest.no/api/badge/latest/releases/no/item/xp-ntb-import)](https://repo.itemtest.no/#/releases/no/item/xp-ntb-import)
 
 <img src="https://github.com/ItemConsulting/xp-ntb-import/raw/main/docs/icon.svg?sanitize=true" width="150">
 
@@ -85,6 +87,8 @@ Deploy locally for testing purposes:
 ./gradlew publishToMavenLocal
 ```
 
-## Deploy to Jitpack
+## Deploy to Maven
 
-Go to the [Jitpack page for xp-ntb-import](https://jitpack.io/#no.item/xp-ntb-import) to deploy from Github.
+```bash
+./gradlew publish -P com.enonic.xp.app.production=true
+```

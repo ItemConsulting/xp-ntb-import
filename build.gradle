@@ -29,6 +29,7 @@ repositories {
   mavenLocal()
   mavenCentral()
   xp.enonicRepo()
+  maven { url "https://repo.itemtest.no/releases" }
   maven { url 'https://jitpack.io' }
 }
 
@@ -37,60 +38,77 @@ node {
   version = '22.12.0'
 }
 
-task npmInstallForce(type: NpmTask) {
-  description = 'Update all project node dependencies'
-  args = ['install', '--force']
+tasks.withType(Copy).configureEach {
+  includeEmptyDirs = false
 }
 
-task cleanNode(type: org.gradle.api.tasks.Delete) {
-  delete 'node_modules'
+tasks.register("dev", NpmTask) {
+  args = [
+    "run",
+    "watch"
+  ]
+  dependsOn npmInstall, deploy
+  environment = [
+    "FORCE_COLOR": "true",
+  ]
 }
 
-task serverWebpack(type: NodeTask, dependsOn: [npmInstall, generateTypeScript]) {
-  environment = ['NODE_ENV': nodeEnvironment()]
-  // args = [ '--config', 'webpack.server.config.babel.js', '--color', '--hide-modules' ]
-  args = ['--config', 'webpack.server.config.js', '--color']
-  description = 'Build server JS.'
-  inputs.dir 'src/main'
-  outputs.dir "${buildDir}/resources/main"
-  script = file('node_modules/webpack-cli/bin/cli.js')
+tasks.register("npmCheck", NpmTask) {
+  dependsOn npmInstall
+  args = [
+    "run",
+    "check"
+  ]
+  environment = [
+    "FORCE_COLOR": "true",
+  ]
+}
+
+// If you ALWAYS want to SKIP `test` and `check` tasks on development build, wrap this inside an 'if...'
+// if (!(project.hasProperty('dev') || project.hasProperty('development'))) {
+check.dependsOn npmCheck
+// }
+
+tasks.register("npmBuild", NpmTask) {
+  args = [
+    "run",
+    "--silent",
+    project.hasProperty("dev") || project.hasProperty("development") ? "build" : "minify"
+  ]
+  dependsOn npmInstall
+  dependsOn generateTypeScript
+  environment = [
+    "FORCE_COLOR": "true",
+    "LOG_LEVEL_FROM_GRADLE": gradle.startParameter.logLevel.toString(),
+    "NODE_ENV": project.hasProperty("dev") || project.hasProperty("development") ? "development" : "production"
+  ]
+  inputs.dir "src/main/resources"
+  outputs.dir "build/resources/main"
 }
 
 processResources {
   include '**/*'
-  exclude '**/.gitkeep'
   exclude '**/tsconfig.*.json'
-  exclude '**/*.es'
-  exclude '**/*.es6'
   exclude '**/*.ts'
-  exclude 'assets/js/**/*.js'
-  include 'assets/js/bundle.js'
-  exclude 'assets/styles/**/*.less'
-  exclude 'assets/styles/**/*.sass'
-  exclude 'assets/styles/**/*.scss'
   includeEmptyDirs false
 }
 
-jar {
-  exclude 'assets/styles/**/*.less'
-  exclude 'assets/styles/**/*.sass'
-  exclude 'assets/styles/**/*.scss'
-  exclude 'assets/styles/**/*.js'
 
-  dependsOn += serverWebpack
-}
-
-jar.outputs.dir "${buildDir}/resources/main"
-
-def nodeEnvironment() {
-  def environments = [prod: 'production', dev: 'development']
-  def nodeEnv = environments[hasProperty('env') ? env : 'prod']
-  return nodeEnv != null ? nodeEnv : 'production'
-}
+jar.dependsOn npmBuild
 
 publishing {
+  repositories {
+    maven {
+      name = "itemtestRepository"
+      url = "https://repo.itemtest.no/releases"
+      credentials(PasswordCredentials)
+      authentication {
+        basic(BasicAuthentication)
+      }
+    }
+  }
   publications {
-    mavenJava(MavenPublication) {
+    maven(MavenPublication) {
       from components.java
       groupId group
       artifactId projectName
